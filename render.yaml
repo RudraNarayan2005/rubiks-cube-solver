@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: rubiks-cube-solver
+    env: python
+    rootDir: .
+    buildCommand: |
+      cd frontend && npm install && npm run build
+      cd ../backend && pip install -r requirements.txt
+    startCommand: cd backend && uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: ANTHROPIC_API_KEY
+        sync: false
