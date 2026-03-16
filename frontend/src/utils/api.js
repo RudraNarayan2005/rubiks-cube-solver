@@ -1,7 +1,7 @@
 import axios from "axios"
 
 const api = axios.create({
-  baseURL:"/api"
+  baseURL: "https://rubiks-cube-solver-api.onrender.com"
 })
 
 export async function solveCube(data){
