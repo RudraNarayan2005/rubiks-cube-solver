@@ -193,7 +193,15 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 import os
 
-# Serve React build
-frontend_path = os.path.join(os.path.dirname(__file__), "../frontend/dist")
+frontend_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../frontend/dist")
+
+@app.get("/health")
+def health_check():
+    return {"dist_exists": os.path.exists(frontend_path), "path": frontend_path}
+
 if os.path.exists(frontend_path):
     app.mount("/", StaticFiles(directory=frontend_path, html=True), name="static")
+else:
+    @app.get("/app")
+    def no_frontend():
+        return {"error": "Frontend not built", "looked_in": frontend_path}
