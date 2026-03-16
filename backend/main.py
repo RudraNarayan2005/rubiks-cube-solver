@@ -188,3 +188,12 @@ def list_moves():
         move: {"face": data[0], "direction": data[1], "arrow": data[2]}
         for move, data in MOVE_DESC.items()
     }
+
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+import os
+
+# Serve React build
+frontend_path = os.path.join(os.path.dirname(__file__), "../frontend/dist")
+if os.path.exists(frontend_path):
+    app.mount("/", StaticFiles(directory=frontend_path, html=True), name="static")
