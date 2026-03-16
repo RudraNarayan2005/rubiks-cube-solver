@@ -1,16 +1,18 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from typing import List, Optional
 import anthropic
 import json
 import re
+import os
 
 app = FastAPI(title="CubeAI Solver API", version="1.0.0")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:3000"],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -99,9 +101,9 @@ def serialize_cube(size: int, faces: List[CubeFace]) -> str:
             lines.append(row_str)
     return "\n".join(lines)
 
-# ─── Routes ───────────────────────────────────────────────
+# ─── API Routes ───────────────────────────────────────────
 
-@app.get("/")
+@app.get("/ping")
 def health():
     return {"status": "ok", "service": "CubeAI Solver API"}
 
@@ -189,19 +191,9 @@ def list_moves():
         for move, data in MOVE_DESC.items()
     }
 
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
-import os
+# ─── Serve React frontend (must be last) ──────────────────
 
 frontend_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../frontend/dist")
 
-@app.get("/health")
-def health_check():
-    return {"dist_exists": os.path.exists(frontend_path), "path": frontend_path}
-
 if os.path.exists(frontend_path):
     app.mount("/", StaticFiles(directory=frontend_path, html=True), name="static")
-else:
-    @app.get("/app")
-    def no_frontend():
-        return {"error": "Frontend not built", "looked_in": frontend_path}
