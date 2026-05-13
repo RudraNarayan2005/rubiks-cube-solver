@@ -20,7 +20,6 @@ export default function ColorPage({ size, onSolve }) {
   const [faces, setFaces] = useState(() => initFaces(size))
   const [selected, setSelected] = useState("red")
   const [activeFace, setActiveFace] = useState(0)
-  const [apiKey, setApiKey] = useState("")
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
 
@@ -35,13 +34,11 @@ export default function ColorPage({ size, onSolve }) {
   }
 
   async function handleSolve() {
-    if (!apiKey.trim()) { setError("Please enter your Groq API key"); return }
     setError(""); setLoading(true)
     try {
       const payload = {
         size,
-        faces: faces.map(f => ({ name: f.name, short: f.short, cells: f.cells.map(hexToName) })),
-        api_key: apiKey.trim()
+        faces: faces.map(f => ({ name: f.name, short: f.short, cells: f.cells.map(hexToName) }))
       }
       const sol = await solveCube(payload)
       onSolve(sol, faces)
@@ -114,15 +111,6 @@ export default function ColorPage({ size, onSolve }) {
             </div>
           </div>
         ))}
-      </div>
-
-      {/* API Key */}
-      <div style={{ display:"flex", justifyContent:"center", marginBottom:12 }}>
-        <input value={apiKey} onChange={e => setApiKey(e.target.value)}
-          placeholder="Groq API key (gsk_...)"
-          type="password"
-          style={{ width:320, padding:"10px 14px", borderRadius:8, border:"1px solid #444",
-            background:"#2a2a3e", color:"#fff", fontSize:13, outline:"none" }} />
       </div>
 
       {error && <p style={{ textAlign:"center", color:"#f87171", marginBottom:10 }}>{error}</p>}

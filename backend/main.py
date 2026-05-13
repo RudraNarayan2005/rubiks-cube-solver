@@ -28,7 +28,6 @@ class CubeFace(BaseModel):
 class SolveRequest(BaseModel):
     size: int
     faces: List[CubeFace]
-    api_key: str
 
 class MoveInfo(BaseModel):
     move: str
@@ -126,6 +125,10 @@ async def solve_cube(req: SolveRequest):
         detail = ", ".join(f"{c}: {v}/{n2}" for c, v in invalid_colors.items())
         raise HTTPException(status_code=422, detail=f"Invalid color counts: {detail}")
 
+    groq_api_key = os.environ.get("GROQ_API_KEY", "")
+    if not groq_api_key:
+        raise HTTPException(status_code=500, detail="GROQ_API_KEY not configured on server")
+
     cube_desc = serialize_cube(req.size, req.faces)
 
     prompt = f"""You are an expert Rubik's Cube solver. I have a {req.size}×{req.size} Rubik's Cube:
@@ -149,7 +152,7 @@ Rules:
 - Optimize for fewest moves possible"""
 
     try:
-        client = Groq(api_key=req.api_key)
+        client = Groq(api_key=groq_api_key)
         message = client.chat.completions.create(
             model="llama-3.3-70b-versatile",
             max_tokens=1024,
