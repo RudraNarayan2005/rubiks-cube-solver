@@ -1,0 +1,8 @@
+services:
+  - type: web
+    name: rubiks-cube-solver
+    env: docker
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: GROQ_API_KEY
+        sync: false
